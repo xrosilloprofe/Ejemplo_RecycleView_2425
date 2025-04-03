@@ -3,10 +3,13 @@ package es.ieslavereda.ejemplo_recycledview_2425;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -49,7 +52,35 @@ public class MainActivity extends AppCompatActivity {
         ));
 
         recyclerView = findViewById(R.id.recycled);
+        AdaptadorRV adaptador = new AdaptadorRV(this,paises);
+        recyclerView.setAdapter(adaptador);
+        //GridLayoutManager
+        LinearLayoutManager linearLayoutManager =
+                new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(linearLayoutManager);
 
+        //Gestionar los movimientos de los viewholders
+        ItemTouchHelper ith = new ItemTouchHelper(
+                new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP |
+                        ItemTouchHelper.DOWN, ItemTouchHelper.LEFT) {
+                    @Override
+                    public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                        int posIni = viewHolder.getAdapterPosition();
+                        int posFin = target.getAdapterPosition();
+                        Pais pais = paises.remove(posIni);
+                        paises.add(posFin,pais);
+                        //move item fromPos to toPos
+                        recyclerView.getAdapter().notifyItemMoved(posIni,posFin);
+                        return true; //true if moved, false otherwise
+                    }
+
+                    @Override
+                    public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+
+                    }
+                }
+        );
+        ith.attachToRecyclerView(recyclerView);
 
     }
 }
