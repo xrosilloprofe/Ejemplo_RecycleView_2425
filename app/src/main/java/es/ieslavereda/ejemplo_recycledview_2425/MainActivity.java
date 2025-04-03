@@ -1,6 +1,7 @@
 package es.ieslavereda.ejemplo_recycledview_2425;
 
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -11,6 +12,8 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,6 +79,22 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                        //borrar el elemento de la lista
+                        int posicion = viewHolder.getAdapterPosition();
+                        Pais pais = paises.remove(posicion);
+                        recyclerView.getAdapter().notifyItemRemoved(posicion);
+                        Snackbar.make(recyclerView,"Borrado: " + pais.getNombre(),
+                                Snackbar.LENGTH_LONG)
+                                .setAction("Undo", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        //volvais a poner el país borrado
+                                        paises.add(posicion,pais);
+                                        recyclerView.getAdapter().notifyItemInserted(posicion);
+                                    }
+                                })
+                                .show();
+
 
                     }
                 }
