@@ -20,10 +20,12 @@ public class AdaptadorRV extends RecyclerView.Adapter<AdaptadorRV.ViewHolder> {
 
     private LayoutInflater inflater;
     private List<Pais> paises;
+    private View.OnClickListener onClickListener;
 
     //constructor
-    public AdaptadorRV(Context context, List<Pais> paises){
+    public AdaptadorRV(Context context, List<Pais> paises, View.OnClickListener onClickListener){
         this.paises = paises;
+        this.onClickListener = onClickListener;
         inflater = (LayoutInflater)
                 context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -34,6 +36,7 @@ public class AdaptadorRV extends RecyclerView.Adapter<AdaptadorRV.ViewHolder> {
     public AdaptadorRV.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = inflater.inflate(R.layout.viewholder_layout,
                 parent,false);
+        view.setOnClickListener(onClickListener);
         return new ViewHolder(view);
     }
 
