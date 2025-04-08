@@ -1,5 +1,7 @@
 package es.ieslavereda.ejemplo_recycledview_2425;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -8,6 +10,8 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -18,6 +22,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -31,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<Pais> paises;
     private RecyclerView recyclerView;
     private Switch orden;
+    private FloatingActionButton anyadirButton;
 
 
     @Override
@@ -43,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        Context context = this;
 
         paises = new ArrayList<>(List.of(
                 new Pais("Afganistan", "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Flag_of_the_Taliban.svg/360px-Flag_of_the_Taliban.svg.png","Afganistán (en pastún: افغانستان\u200E, Afġānistān; en darí: افغانستان\u200E, Afġānestān; pronunciado /avɣɒnesˈtɒn/), oficialmente el Emirato Islámico de Afganistán (en pastún: د افغانستان اسلامي امارت\u200E, Da Afġānistān Islāmī Imārāt; en darí: امارت اسلامی افغانستان\u200E, Imârat-i Islâmī-yi Afġânistân), es un país montañoso sin salida al mar ubicado en Asia del Sur. Limita con Pakistán al sur y al este, con Irán al oeste, con Turkmenistán, Uzbekistán y Tayikistán al norte, y con China al noreste, a través del corredor de Waján.[4]\u200B[5]\u200B Su forma de gobierno es la de una monarquía religiosa constituida como emirato islámico. Su capital y ciudad más grande es Kabul, con una población estimada de 4,6 millones de personas, en su mayoría pastunes, tayikos, hazaras, uzbekos y turcomanos."),
@@ -64,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         recyclerView = findViewById(R.id.recycled);
         orden = findViewById(R.id.switchOrden);
+        anyadirButton = findViewById(R.id.anyadirButton);
 
         AdaptadorRV adaptador = new AdaptadorRV(this,paises,this);
         recyclerView.setAdapter(adaptador);
@@ -123,6 +132,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Collections.sort(paises); //ordenar la lista por orden natural, nombre ascendente
                 }
                 adaptador.notifyDataSetChanged();
+            }
+        });
+
+        ActivityResultLauncher<Intent> activityResult =
+                registerForActivityResult(
+                        new ActivityResultContracts.StartActivityForResult(),
+                        result ->{
+                            if(result.getResultCode()== Activity.RESULT_OK){
+                                Pais pais = (Pais) result.getData().getExtras().getSerializable("pais");
+                                paises.add(pais);
+                                adaptador.notifyItemInserted(paises.size()-1);
+                            } else {
+                                Toast.makeText(this,"Operación de alta cancelada por el usuario",Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+
+        anyadirButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, AnyadirActivity.class);
+                activityResult.launch(intent);
             }
         });
 
